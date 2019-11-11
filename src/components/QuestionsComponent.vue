@@ -431,7 +431,7 @@ export default {
       setTimeout(() => {
         this.questionNumber++;
         this.findUnAnsweredQuestion();
-      }, 1000);
+      }, 3000);
     },
     answerCount(currentOption) {
       if (currentOption.istrue) {
