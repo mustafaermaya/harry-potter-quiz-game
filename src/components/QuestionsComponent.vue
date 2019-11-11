@@ -1,60 +1,76 @@
-<template>
+"<template>
   <div>
-    <div class="card m-4">
-      <div class="card-body" v-if="!gameStarted">
-        <h3>Hello! Welcome to the Harry Potter Quiz Game</h3>
-        <p>It's about to start</p>
-        <p>Click and play</p>
-        <button id="start_game" class="btn btn-success" @click="startGame">Start Game</button>
-      </div>
-      <div class="card m-4" v-if="gameStarted && !gameEnded">
-        <div class="card-body">
-          <div>{{ currentQuestion.question.number }} - {{ currentQuestion.question.title }}</div>
-          <div class="d-flex">
-            <button
-              class="btn btn-secondary ml-1 mt-3"
-              v-for="(currentOption , index) in currentQuestion.options"
-              :key="index"
-              style="flex-grow:1;"
-              @click="disable(currentOption)"
-              :value="currentOption.value"
-              :class="[{'btn btn-success': currentQuestion.question.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.question.answered && !currentOption.istrue}]"
-              :disabled="currentQuestion.question.answered"
-            >{{ currentOption.text }}</button>
-          </div>
-          <p
-            class="mt-5"
-            v-if="currentQuestion.question.answered"
-          >The correct answer is {{ trueOption }}</p>
+    <header class="masthead">
+      <div class="container d-flex h-100 align-items-center" v-if="!gameStarted">
+        <div class="mx-auto text-center">
+          <h1 class="mx-auto my-0 text-uppercase">Harry Potter</h1>
+          <h2 class="text-white-50 mx-auto mt-2 mb-5">
+            Welcome to Harry Potter Fan Game.
+            <br />
+            <br />The game is about to start
+          </h2>
+          <b-button pill class="btn btn-info js-scroll-trigger" @click="startGame">Get Started</b-button>
         </div>
-        <div class="card m-4">
-          <div class="card-body">
-            <button
-              class="btn btn-primary"
-              @click="previousQuestion"
-              v-if="1<questionNumber"
-            >Previous Question</button>
-            <button
-              class="btn btn-primary ml-3"
-              @click="nextQuestion"
-              v-show="questionNumber<10"
-            >Next Question</button>
-            <button
-              class="btn btn-info ml-3"
-              v-show="questionNumber==10"
-              v-if="!gameEnded"
-              @click="endGame"
-            >Show The Results</button>
+      </div>
+      <div class="container d-flex h-100 align-items-center" v-if="gameStarted && !gameEnded">
+        <div class="mx-auto text-center">
+          <div>
+            <div>
+              <div
+                class="text-white mb-3"
+              >{{ currentQuestion.question.number }} - {{ currentQuestion.question.title }}</div>
+              <div class="d-flex">
+                <b-button
+                  pill
+                  variant="secondary mr-2 mt-3 mb-3"
+                  v-for="(currentOption , index) in currentQuestion.options"
+                  :key="index"
+                  style="flex-grow:1;"
+                  @click="answerCount(currentOption)"
+                  :value="currentOption.value"
+                  :class="[{'btn btn-success': currentQuestion.question.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.question.answered && !currentOption.istrue}]"
+                  :disabled="currentQuestion.question.answered"
+                >{{ currentOption.text }}</b-button>
+              </div>
+            </div>
+            <div>
+              <div>
+                <button
+                  class="btn btn-info mt-3 ml-3"
+                  @click="questionPassed"
+                  v-show="questionNumber<11"
+                  :disabled="currentQuestion.question.answered"
+                >Pass</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      <div class="card m-4" v-if="gameEnded">
-        <div class="card-body">
-          <p>Your correct answers {{ trueAnswers }}</p>
-          <p>Your wrong answers {{ wrongAnswers }}</p>
+      <div class="container d-flex h-100 align-items-center" v-if="gameEnded">
+        <div class="mx-auto text-center">
+          <div>
+            <div>
+              <div class="card bg-success">
+                <div class="card-body text-center">
+                  <p class="card-text">Your correct answers {{ trueAnswers}}</p>
+                </div>
+              </div>
+              <div class="card bg-warning">
+                <div class="card-body text-center">
+                  <p class="card-text">Your wrong answers {{ wrongAnswers }}</p>
+                </div>
+              </div>
+              <div class="card bg-info">
+                <div class="card-body text-center">
+                  <p class="card-text">Your pass answers {{ passCount }}</p>
+                </div>
+              </div>
+              <button class="btn btn-info mt-3" @click="startAgain">Start Again</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </header>
   </div>
 </template>
 
@@ -164,25 +180,25 @@ export default {
           answered: false,
           options: [
             {
-              text: "100",
+              text: "100 Points",
               value: "100",
               istrue: false,
               selected: false
             },
             {
-              text: "150",
+              text: "150 Points",
               value: "150",
               istrue: true,
               selected: false
             },
             {
-              text: "200",
+              text: "200 Points",
               value: "200",
               istrue: false,
               selected: false
             },
             {
-              text: "250",
+              text: "250 Points",
               value: "250",
               istrue: false,
               selected: false
@@ -390,63 +406,136 @@ export default {
       ],
       trueAnswers: 0,
       wrongAnswers: 0,
-      findTrueOp: [],
-      trueOption: "",
-      countDown: 30
+      passCount: 0,
+      findTrueOp: []
     };
   },
   methods: {
     startGame() {
       this.gameStarted = true;
-      this.findUnansweredQuestion();
+      this.findUnAnsweredQuestion();
     },
-    endGame() {
-      if (!this.currentQuestion.question.answered) {
-        this.$swal("Hello Vue world!!!");
-      } else {
-        this.gameEnded = true;
+    startAgain() {
+      this.questionNumber = 1;
+      this.trueAnswers = 0;
+      this.wrongAnswers = 0;
+      this.passCount = 0;
+      for (let index = 0; index < this.questions.length; index++) {
+        const element = (this.questions[index].answered = false);
       }
+      this.gameStarted = false;
+      this.gameEnded = false;
     },
-    disable(currentOption) {
-      this.currentQuestion.question.options.map(option => {
-        this.findTrueOp.push(option);
-      });
-      let trues = this.findTrueOp.find(trueOp => trueOp.istrue);
-      this.trueOption = trues.text;
+    timeOut() {
+      this.currentQuestion.question.answered = true;
+      setTimeout(() => {
+        this.questionNumber++;
+        this.findUnAnsweredQuestion();
+      }, 1000);
+    },
+    answerCount(currentOption) {
       if (currentOption.istrue) {
         this.trueAnswers++;
       } else {
         this.wrongAnswers++;
       }
-      this.findTrueOp = [];
-      this.currentQuestion.question.answered = true;
+      this.timeOut();
     },
-    findUnansweredQuestion() {
+    questionPassed() {
+      this.passCount++;
+      this.timeOut();
+    },
+    findUnAnsweredQuestion() {
       this.currentQuestion.options = [];
-      let UnAnsweredQuestion = this.questions.find(
-        question => question.number == this.questionNumber
-      );
-      UnAnsweredQuestion.options.map(option => {
-        this.currentQuestion.options.push(option);
-      });
-      this.currentQuestion.question = UnAnsweredQuestion;
-    },
-    nextQuestion() {
-      if (!this.currentQuestion.question.answered) {
-        this.$swal("You didn't answer the question");
+      if (this.questionNumber <= 10) {
+        let UnAnsweredQuestion = this.questions.find(
+          question => question.number == this.questionNumber
+        );
+        for (let index in UnAnsweredQuestion.options) {
+          let randomIndex = Math.floor(
+            Math.random() * UnAnsweredQuestion.options.length
+          );
+          while (
+            this.currentQuestion.options.includes(
+              UnAnsweredQuestion.options[randomIndex]
+            )
+          ) {
+            randomIndex = Math.floor(
+              Math.random() * UnAnsweredQuestion.options.length
+            );
+          }
+          this.currentQuestion.options[index] =
+            UnAnsweredQuestion.options[randomIndex];
+        }
+        this.currentQuestion.question = UnAnsweredQuestion;
       } else {
-        this.questionNumber++;
-        this.findUnansweredQuestion();
+        this.gameEnded = true;
       }
-    },
-    previousQuestion() {
-      this.questionNumber--;
-      this.findUnansweredQuestion();
     }
   }
 };
 </script>
 
 <style scoped>
+.masthead {
+  position: relative;
+  width: 100%;
+  height: auto;
+  min-height: 35rem;
+  padding: 15rem 0;
+  background: linear-gradient(
+      to bottom,
+      rgba(22, 22, 22, 0.3) 0%,
+      rgba(22, 22, 22, 0.7) 75%,
+      #161616 100%
+    ),
+    url("../img/hogwarts.jpg");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+}
+
+.masthead h1 {
+  font-family: "Varela Round";
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  letter-spacing: 0.8rem;
+  background: -webkit-linear-gradient(
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 255, 255, 0)
+  );
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+}
+
+.masthead h2 {
+  max-width: 20rem;
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .masthead h1 {
+    font-size: 4rem;
+    line-height: 4rem;
+  }
+}
+
+@media (min-width: 992px) {
+  .masthead {
+    height: 100vh;
+    padding: 0;
+  }
+  .masthead h1 {
+    font-size: 6.5rem;
+    line-height: 6.5rem;
+    letter-spacing: 0.8rem;
+  }
+  .masthead h2 {
+    max-width: 30rem;
+    font-size: 1.25rem;
+  }
+}
 </style>
 
+"
