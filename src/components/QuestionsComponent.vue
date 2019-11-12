@@ -15,34 +15,38 @@
       <div class="container d-flex h-100 align-items-center" v-if="gameStarted && !gameEnded">
         <div class="mx-auto text-center">
           <div>
-            <div>
-              <div
-                class="text-white mb-3"
-              >{{ currentQuestion.question.number }} - {{ currentQuestion.question.title }}</div>
-              <div class="d-flex">
-                <b-button
-                  pill
-                  variant="secondary mr-2 mt-3 mb-3"
-                  v-for="(currentOption , index) in currentQuestion.options"
-                  :key="index"
-                  style="flex-grow:1;"
-                  @click="answerCount(currentOption)"
-                  :value="currentOption.value"
-                  :class="[{'btn btn-success': currentQuestion.question.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.question.answered && !currentOption.istrue}]"
-                  :disabled="currentQuestion.question.answered"
-                >{{ currentOption.text }}</b-button>
-              </div>
+            <div
+              class="text-white mb-3"
+            >{{ currentQuestion.question.number }} - {{ currentQuestion.question.title }}</div>
+            <div class="d-flex">
+              <b-button
+                pill
+                variant="secondary mr-2 mt-3 mb-3"
+                v-for="(currentOption , index) in currentQuestion.options"
+                :key="index"
+                style="flex-grow:1;"
+                @click="answerCount(currentOption)"
+                :value="currentOption.value"
+                :class="[{'btn btn-success': currentQuestion.question.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.question.answered && !currentOption.istrue}]"
+                :disabled="currentQuestion.question.answered"
+              >{{ currentOption.text }}</b-button>
             </div>
-            <div>
-              <div>
-                <button
-                  class="btn btn-info mt-3 ml-3"
-                  @click="questionPassed"
-                  v-show="questionNumber<11"
-                  :disabled="currentQuestion.question.answered"
-                >Pass</button>
-              </div>
-            </div>
+            <p class="mt-3 text-white" v-if="currentQuestion.question.answered">
+              The correct answer is :
+              <span class="mt-3 text-warning">{{ trueOptionValue }}</span>
+            </p>
+          </div>
+          <div>
+            <button
+              class="btn btn-warning mt-3 ml-3"
+              style="width:100px;"
+              @click="questionPassed"
+              v-show="questionNumber<11"
+              :disabled="currentQuestion.question.answered"
+            >Pass</button>
+          </div>
+          <div>
+            <p class="mt-3 text-white">Remaining Time : {{timeCount}}</p>
           </div>
         </div>
       </div>
@@ -65,7 +69,7 @@
                   <p class="card-text">Your pass answers {{ passCount }}</p>
                 </div>
               </div>
-              <button class="btn btn-info mt-3" @click="startAgain">Start Again</button>
+              <button class="btn btn-info mt-3" @click="startAgain">Play Again</button>
             </div>
           </div>
         </div>
@@ -407,7 +411,9 @@ export default {
       trueAnswers: 0,
       wrongAnswers: 0,
       passCount: 0,
-      findTrueOp: []
+      trueOptionValue: "",
+      timeCount: 30,
+      timeFunc: null
     };
   },
   methods: {
@@ -421,17 +427,30 @@ export default {
       this.wrongAnswers = 0;
       this.passCount = 0;
       for (let index = 0; index < this.questions.length; index++) {
-        const element = (this.questions[index].answered = false);
+        this.questions[index].answered = false;
       }
       this.gameStarted = false;
       this.gameEnded = false;
+    },
+    Interval() {
+      let interval = setInterval(() => {
+        this.timeCount--;
+        if (this.timeCount == 0) {
+          clearInterval(interval);
+          this.currentQuestion.question.answered = true;
+          this.passCount++;
+          this.timeCount = "Time is over";
+          this.timeOut();
+        }
+      }, 1000);
+      this.timeFunc = interval;
     },
     timeOut() {
       this.currentQuestion.question.answered = true;
       setTimeout(() => {
         this.questionNumber++;
         this.findUnAnsweredQuestion();
-      }, 3000);
+      }, 5000);
     },
     answerCount(currentOption) {
       if (currentOption.istrue) {
@@ -440,12 +459,23 @@ export default {
         this.wrongAnswers++;
       }
       this.timeOut();
+      clearInterval(this.timeFunc);
+      this.findTrueOp();
+    },
+    findTrueOp() {
+      let trueOption = this.currentQuestion.options.find(
+        optionTrue => optionTrue.istrue == true
+      );
+      this.trueOptionValue = trueOption.text;
     },
     questionPassed() {
       this.passCount++;
       this.timeOut();
+      clearInterval(this.timeFunc);
+      this.findTrueOp();
     },
     findUnAnsweredQuestion() {
+      this.timeCount = 30;
       this.currentQuestion.options = [];
       if (this.questionNumber <= 10) {
         let UnAnsweredQuestion = this.questions.find(
@@ -468,6 +498,7 @@ export default {
             UnAnsweredQuestion.options[randomIndex];
         }
         this.currentQuestion.question = UnAnsweredQuestion;
+        this.Interval();
       } else {
         this.gameEnded = true;
       }
