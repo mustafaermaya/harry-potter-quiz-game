@@ -1,4 +1,4 @@
-"<template>
+<template>
   <div>
     <header class="masthead">
       <div class="container d-flex h-100 align-items-center" v-if="!gameStarted">
@@ -14,35 +14,30 @@
       </div>
       <div class="container d-flex h-100 align-items-center" v-if="gameStarted && !gameEnded">
         <div class="mx-auto text-center">
-          <div>
-            <div
-              class="text-white mb-3"
-            >{{ currentQuestion.question.number }} - {{ currentQuestion.question.title }}</div>
-            <div class="d-flex">
-              <b-button
-                pill
-                variant="secondary mr-2 mt-3 mb-3"
-                v-for="(currentOption , index) in currentQuestion.options"
-                :key="index"
-                style="flex-grow:1;"
-                @click="answerCount(currentOption)"
-                :value="currentOption.value"
-                :class="[{'btn btn-success': currentQuestion.question.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.question.answered && !currentOption.istrue}]"
-                :disabled="currentQuestion.question.answered"
-              >{{ currentOption.text }}</b-button>
-            </div>
-            <p class="mt-3 text-white" v-if="currentQuestion.question.answered">
-              The correct answer is :
-              <span class="mt-3 text-warning">{{ trueOptionValue }}</span>
-            </p>
+          <div class="text-white mb-3">{{questionNumber}} - {{ currentQuestion.title }}</div>
+          <div class="d-flex">
+            <b-button
+              pill
+              variant="secondary mr-2 mt-3 mb-3"
+              v-for="(currentOption , index) in currentQuestion.options"
+              :key="index"
+              style="flex-grow:1;"
+              :class="[{'btn btn-success': currentQuestion.answered && currentOption.istrue}, {'btn btn-danger': currentQuestion.answered && !currentOption.istrue}]"
+              :disabled="currentQuestion.answered"
+              @click="answerCount(currentOption)"
+            >{{ currentOption.text }}</b-button>
           </div>
+          <p class="mt-3 text-white" v-if="currentQuestion.answered">
+            The correct answer is :
+            <span class="mt-3 text-warning">{{ trueOptionValue }}</span>
+          </p>
           <div>
             <button
               class="btn btn-warning mt-3 ml-3"
               style="width:100px;"
               @click="questionPassed"
-              v-show="questionNumber<11"
-              :disabled="currentQuestion.question.answered"
+              v-show="currentQuestionIndex<11"
+              :disabled="currentQuestion.answered"
             >Pass</button>
           </div>
           <div>
@@ -56,20 +51,20 @@
             <div>
               <div class="card bg-success">
                 <div class="card-body text-center">
-                  <p class="card-text">Your correct answers {{ trueAnswers}}</p>
+                  <p class="card-text">Correct answers {{ trueAnswers}}</p>
                 </div>
               </div>
               <div class="card bg-warning">
                 <div class="card-body text-center">
-                  <p class="card-text">Your wrong answers {{ wrongAnswers }}</p>
+                  <p class="card-text">Wrong answers {{ wrongAnswers }}</p>
                 </div>
               </div>
               <div class="card bg-info">
                 <div class="card-body text-center">
-                  <p class="card-text">Your pass answers {{ passCount }}</p>
+                  <p class="card-text">Passed questions {{ passCount }}</p>
                 </div>
               </div>
-              <button class="btn btn-info mt-3" @click="startAgain">Play Again</button>
+              <button class="btn btn-light mt-3" @click="startAgain">Start Again</button>
             </div>
           </div>
         </div>
@@ -84,330 +79,239 @@ export default {
     return {
       questions: [
         {
-          number: 1,
           title: "What is Lord Voldemort’s real name?",
           answered: false,
           options: [
             {
               text: "Tom Marvolo Riddle",
-              value: "Marvolo",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "Tom Marvilo Riddle",
-              value: "Marvilo",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Tom Marvin Riddle",
-              value: "Marvin",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Tom Ravolo Riddle",
-              value: "Ravolo",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 2,
           title:
             "What’s the LAST line of the book, Harry Potter and the Sorcerer’s Stone?",
           answered: false,
           options: [
             {
               text: "“Goodbye, for now, Hogwarts.”",
-              value: "Hogwarts",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text:
                 "“Harry, Ron, and Hermione looked at each other sheepishly and smiled.”",
-              value: "Harry",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "“I’m going to have a lot of fun with Dudley this summer…”",
-              value: "Dudley",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "“’Until the fall,’ said Dumbledore with a nod.”",
-              value: "Dumbledore",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 3,
           title: "According to the Dursleys, how did Harry’s parents die?",
           answered: false,
           options: [
             {
               text: "In a plane crash",
-              value: "plane",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "In a train crash",
-              value: "train",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "In a bus crash",
-              value: "bus",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "In a car crash",
-              value: "car",
-              istrue: true,
-              selected: false
+              istrue: true
             }
           ]
         },
         {
-          number: 4,
           title: "How many points is the snitch worth in Quidditch?",
           answered: false,
           options: [
             {
               text: "100 Points",
-              value: "100",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "150 Points",
-              value: "150",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "200 Points",
-              value: "200",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "250 Points",
-              value: "250",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 5,
           title: "Who put Harry’s name in the Goblet of Fire?",
           answered: false,
           options: [
             {
               text: "Peter Pettigrew",
-              value: "peter",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Severus Snape",
-              value: "severus",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Cornelius Fudge",
-              value: "cornelius",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Barty Crouch, Jr.",
-              value: "barty",
-              istrue: true,
-              selected: false
+              istrue: true
             }
           ]
         },
         {
-          number: 6,
           title:
             "What does one say to close the Marauder's Map and make it blank again?",
           answered: false,
           options: [
             {
               text: "Nothing to See Here",
-              value: "nothing to see here",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "All Done",
-              value: "all done",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Mischief Managed",
-              value: "mischief managed",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "Hello Professor",
-              value: "hello professor",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 7,
           title:
             "Who has been stealing Harry's letters from Ron and Hermione at the beginning of 'Harry Potter and the Chamber of Secrets'?",
           answered: false,
           options: [
             {
               text: "Dumbledore",
-              value: "dumbledore",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Draco Malfoy",
-              value: "draco malfoy",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Dobby",
-              value: "dobby",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "The Dursleys",
-              value: "dursleys",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 8,
           title: "What's the name of Filch's cat?",
           answered: false,
           options: [
             {
               text: "Mrs. Norris",
-              value: "mrs. norris",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "Butter Cup",
-              value: "butter cup",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Jones",
-              value: "jones",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Ser Pounce",
-              value: "ser pounce",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 9,
           title: "What is the model of the first broom Harry ever receives?",
           answered: false,
           options: [
             {
               text: "Firebolt",
-              value: "firebolt",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Nimbus 2000",
-              value: "nimbus 2000",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "Cleansweep One",
               value: "cleansweep one",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Hoover",
-              value: "hoover",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         },
         {
-          number: 10,
           title:
             "Who comes to pick up Harry when he's old enough to go to Hogwarts?",
           answered: false,
           options: [
             {
               text: "Nymphadora Tonks",
-              value: "nymphadora tonks",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Hagrid",
-              value: "hagrid",
-              istrue: true,
-              selected: false
+              istrue: true
             },
             {
               text: "Mrs. Weasley",
-              value: "mrs. weasley",
-              istrue: false,
-              selected: false
+              istrue: false
             },
             {
               text: "Dumbledore",
-              value: "dumbledore",
-              istrue: false,
-              selected: false
+              istrue: false
             }
           ]
         }
       ],
       gameStarted: false,
       gameEnded: false,
-      questionNumber: 1,
-      currentQuestion: [
-        {
-          question: "",
-          options: []
-        }
-      ],
+      questionNumber: 0,
+      currentQuestionIndex: 0,
+      currentQuestion: {},
+      mixedQuestions: [],
+      mixedOptions: [],
       trueAnswers: 0,
       wrongAnswers: 0,
       passCount: 0,
@@ -419,38 +323,27 @@ export default {
   methods: {
     startGame() {
       this.gameStarted = true;
-      this.findUnAnsweredQuestion();
+      this.mixQuestion();
+      this.getCurrentQuestion();
     },
-    startAgain() {
-      this.questionNumber = 1;
-      this.trueAnswers = 0;
-      this.wrongAnswers = 0;
-      this.passCount = 0;
-      for (let index = 0; index < this.questions.length; index++) {
-        this.questions[index].answered = false;
-      }
-      this.gameStarted = false;
-      this.gameEnded = false;
-    },
-    Interval() {
-      let interval = setInterval(() => {
-        this.timeCount--;
-        if (this.timeCount == 0) {
-          clearInterval(interval);
-          this.currentQuestion.question.answered = true;
-          this.passCount++;
-          this.timeCount = "Time is over";
-          this.timeOut();
-        }
-      }, 1000);
-      this.timeFunc = interval;
-    },
-    timeOut() {
-      this.currentQuestion.question.answered = true;
-      setTimeout(() => {
+    getCurrentQuestion() {
+      this.timeCount = 30;
+      if (this.currentQuestionIndex < this.questions.length) {
+        this.currentQuestion = this.mixedQuestions[this.currentQuestionIndex];
+        this.mixOptions();
+        this.Interval();
         this.questionNumber++;
-        this.findUnAnsweredQuestion();
-      }, 5000);
+        this.currentQuestionIndex++;
+        this.currentQuestion.options = this.mixedOptions;
+      } else {
+        this.gameEnded = true;
+      }
+    },
+    questionPassed() {
+      this.passCount++;
+      this.timeOut();
+      clearInterval(this.timeFunc);
+      this.findTrueOp();
     },
     answerCount(currentOption) {
       if (currentOption.istrue) {
@@ -458,6 +351,7 @@ export default {
       } else {
         this.wrongAnswers++;
       }
+      this.currentQuestion.answered = true;
       this.timeOut();
       clearInterval(this.timeFunc);
       this.findTrueOp();
@@ -468,39 +362,78 @@ export default {
       );
       this.trueOptionValue = trueOption.text;
     },
-    questionPassed() {
-      this.passCount++;
-      this.timeOut();
-      clearInterval(this.timeFunc);
-      this.findTrueOp();
-    },
-    findUnAnsweredQuestion() {
-      this.timeCount = 30;
-      this.currentQuestion.options = [];
-      if (this.questionNumber <= 10) {
-        let UnAnsweredQuestion = this.questions.find(
-          question => question.number == this.questionNumber
-        );
-        for (let index in UnAnsweredQuestion.options) {
-          let randomIndex = Math.floor(
-            Math.random() * UnAnsweredQuestion.options.length
-          );
-          while (
-            this.currentQuestion.options.includes(
-              UnAnsweredQuestion.options[randomIndex]
-            )
-          ) {
-            randomIndex = Math.floor(
-              Math.random() * UnAnsweredQuestion.options.length
-            );
-          }
-          this.currentQuestion.options[index] =
-            UnAnsweredQuestion.options[randomIndex];
+    Interval() {
+      let interval = setInterval(() => {
+        this.timeCount--;
+        if (this.timeCount == 0) {
+          clearInterval(interval);
+          this.currentQuestion.answered = true;
+          this.wrongAnswers++;
+          this.timeCount = "Time is over";
+          this.timeOut();
+          this.findTrueOp();
         }
-        this.currentQuestion.question = UnAnsweredQuestion;
-        this.Interval();
-      } else {
-        this.gameEnded = true;
+      }, 1000);
+      this.timeFunc = interval;
+    },
+    timeOut() {
+      this.currentQuestion.answered = true;
+      setTimeout(() => {
+        this.getCurrentQuestion();
+      }, 5000);
+    },
+    startAgain() {
+      this.currentQuestionIndex = 0;
+      this.trueAnswers = 0;
+      this.wrongAnswers = 0;
+      this.questionNumber = 0;
+      for (let index = 0; index < this.questions.length; index++) {
+        this.questions[index].answered = false;
+      }
+      this.gameStarted = false;
+      this.gameEnded = false;
+    },
+    mixQuestion() {
+      this.mixedQuestions = [];
+      for (let questionIndex in this.questions) {
+        let randomQuestionIndex = Math.floor(
+          Math.random() * this.questions.length
+        );
+        while (
+          this.mixedQuestions.includes(this.questions[randomQuestionIndex])
+        ) {
+          randomQuestionIndex = Math.floor(
+            Math.random() * this.questions.length
+          );
+        }
+        this.mixedQuestions[questionIndex] = this.questions[
+          randomQuestionIndex
+        ];
+      }
+    },
+    mixOptions() {
+      this.mixedOptions = [];
+      for (let optionIndex in this.mixedQuestions[this.currentQuestionIndex]
+        .options) {
+        let randomOptionIndex = Math.floor(
+          Math.random() *
+            this.mixedQuestions[this.currentQuestionIndex].options.length
+        );
+        while (
+          this.mixedOptions.includes(
+            this.mixedQuestions[this.currentQuestionIndex].options[
+              randomOptionIndex
+            ]
+          )
+        ) {
+          randomOptionIndex = Math.floor(
+            Math.random() *
+              this.mixedQuestions[this.currentQuestionIndex].options.length
+          );
+        }
+        this.mixedOptions[optionIndex] = this.mixedQuestions[
+          this.currentQuestionIndex
+        ].options[randomOptionIndex];
       }
     }
   }
@@ -520,7 +453,7 @@ export default {
       rgba(22, 22, 22, 0.7) 75%,
       #161616 100%
     ),
-    url("../img/hogwarts.jpg");
+    url("../assets/hogwarts.jpg");
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: scroll;
@@ -568,5 +501,3 @@ export default {
   }
 }
 </style>
-
-"

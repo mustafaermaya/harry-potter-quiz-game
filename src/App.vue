@@ -1,15 +1,15 @@
 <template>
   <div class="main-page">
-    <app-questions></app-questions>
+    <app-game-component></app-game-component>
   </div>
 </template>
 
 <script>
-import QuestionsComponent from "./components/QuestionsComponent";
+import GameComponent from "./components/GameComponent";
 export default {
   name: "app",
   components: {
-    appQuestions: QuestionsComponent
+    appGameComponent: GameComponent
   }
 };
 </script>
